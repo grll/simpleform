@@ -273,15 +273,9 @@ const formSchema = {
 
 ## Examples
 
-The package includes several example implementations:
+The package includes a dynamic for example where you can see live changes made to a JSON file.
 
-1. Basic contact form
-2. Multi-step registration form
-3. Dynamic survey form
-4. File upload form
-5. Payment form
-
-To run the examples:
+To run the example:
 
 ```bash
 git clone https://github.com/yourusername/simple-form-generator.git
