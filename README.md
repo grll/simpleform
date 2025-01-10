@@ -286,7 +286,7 @@ bun run dev
 
 ## Contributing
 
-Contributions are welcome! Please read our [contributing guidelines](CONTRIBUTING.md) first.
+Contributions are welcome!
 
 To contribute:
 
