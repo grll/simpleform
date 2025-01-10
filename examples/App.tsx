@@ -1,72 +1,168 @@
-import { useState } from 'react'
-import { Renderer } from '../src/Renderer'
-import type { FormSchema } from '../src/types'
+import { useState } from 'react';
+import { Renderer } from '../src/Renderer';
+import type { FormSchema } from '../src/types';
 
 const initialSchema: FormSchema = {
-  description: "Test form",
+  title: "Advanced Form Demo",
+  description: "This form demonstrates all available field types and features",
   fields: {
-    name: {
+    personalInfo: {
       type: "text",
-      label: "Name",
-      required: true
+      label: "Full Name",
+      required: true,
+      placeholder: "John Doe",
+      validation: {
+        minLength: 2,
+        maxLength: 50
+      },
+      description: "Enter your full legal name"
     },
     email: {
       type: "email",
-      label: "Email",
-      required: true
+      label: "Email Addresses",
+      required: true,
+      allowMultiple: true,
+      placeholder: "primary@example.com, secondary@example.com",
+      description: "You can enter multiple email addresses separated by commas"
+    },
+    password: {
+      type: "password",
+      label: "Password",
+      required: true,
+      showStrengthIndicator: true,
+      showToggle: true,
+      description: "Password must be at least 8 characters long"
+    },
+    age: {
+      type: "number",
+      label: "Age",
+      min: 18,
+      max: 120,
+      unit: "years",
+      description: "You must be at least 18 years old"
+    },
+    phoneNumbers: {
+      type: "array",
+      label: "Phone Numbers",
+      itemsType: "text",
+      minItems: 1,
+      maxItems: 3,
+      sortable: true,
+      placeholder: "+1 (555) 555-5555",
+      description: "Add up to 3 phone numbers. Drag to reorder."
+    }
+  },
+  styling: {
+    className: "max-w-2xl mx-auto bg-white shadow-lg rounded-lg p-6",
+    fieldClassName: "bg-gray-50 hover:bg-gray-100 transition-colors duration-200",
+    labelClassName: "text-gray-700 font-medium",
+    errorClassName: "text-red-600 font-medium"
+  },
+  callbacks: {
+    onValidate: async (data) => {
+      // Simulate async validation
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return true;
+    },
+    onChange: (data) => {
+      console.log('Form data changed:', data);
+    },
+    onError: (errors) => {
+      console.error('Validation errors:', errors);
     }
   }
-}
+};
 
 function App() {
-  const [schemaText, setSchemaText] = useState(JSON.stringify(initialSchema, null, 2))
-  const [error, setError] = useState<string>('')
-  const [schema, setSchema] = useState<FormSchema>(initialSchema)
+  const [schemaText, setSchemaText] = useState(JSON.stringify(initialSchema, null, 2));
+  const [error, setError] = useState<string>('');
+  const [schema, setSchema] = useState<FormSchema>(initialSchema);
+  const [submissionResult, setSubmissionResult] = useState<string>('');
 
   const handleSchemaChange = (value: string) => {
-    setSchemaText(value)
+    setSchemaText(value);
     try {
-      const parsed = JSON.parse(value)
-      setSchema(parsed)
-      setError('')
+      const parsed = JSON.parse(value);
+      setSchema(parsed);
+      setError('');
     } catch (e) {
-      setError('Invalid JSON format')
+      setError('Invalid JSON format');
     }
-  }
+  };
 
-  const handleSubmit = (data: any) => {
-    console.log('Form submitted:', data)
-  }
+  const handleSubmit = async (data: any) => {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setSubmissionResult(JSON.stringify(data, null, 2));
+    console.log('Form submitted:', data);
+  };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Form Generator</h1>
-      
-      {/* Schema Editor */}
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-2">Schema Editor</h2>
-        <div className="relative">
-          <textarea
-            value={schemaText}
-            onChange={(e) => handleSchemaChange(e.target.value)}
-            className="w-full h-64 p-4 font-mono text-sm bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            spellCheck="false"
-          />
-          {error && (
-            <div className="absolute bottom-2 right-2 text-red-500 text-sm bg-white px-2 py-1 rounded">
-              {error}
+    <div className="min-h-screen bg-gray-100 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Form Generator Demo
+          </h1>
+          <p className="text-lg text-gray-600">
+            Edit the schema on the left to customize the form on the right
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Schema Editor */}
+          <div>
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Schema Editor
+              </h2>
+              <div className="relative">
+                <textarea
+                  value={schemaText}
+                  onChange={(e) => handleSchemaChange(e.target.value)}
+                  className="w-full h-[600px] p-4 font-mono text-sm bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  spellCheck="false"
+                />
+                {error && (
+                  <div className="absolute bottom-4 right-4 text-red-500 text-sm bg-white px-3 py-2 rounded-md shadow">
+                    {error}
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+          </div>
+
+          {/* Form Preview & Result */}
+          <div className="space-y-8">
+            <div className="bg-white rounded-lg shadow-lg">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  Form Preview
+                </h2>
+                {!error && (
+                  <Renderer 
+                    schema={schema} 
+                    onSubmit={handleSubmit}
+                  />
+                )}
+              </div>
+            </div>
+
+            {submissionResult && (
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  Submission Result
+                </h2>
+                <pre className="bg-gray-50 p-4 rounded-lg overflow-auto max-h-[300px]">
+                  {submissionResult}
+                </pre>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-
-      {/* Form Preview */}
-      <div className="border-t pt-8">
-        <h2 className="text-lg font-semibold mb-4">Form Preview</h2>
-        {!error && <Renderer schema={schema} onSubmit={handleSubmit} />}
-      </div>
     </div>
-  )
+  );
 }
 
 export default App
